@@ -15,7 +15,7 @@ data class GlobalState(
 
 data class HomeState(
     val gameParams: GameParameters = GameParameters(listOf(), listOf(), GameLevel.NOVICE),
-    val checkedTableList: MutableList<Int> = mutableListOf(),
+    val checkedTableList: List<Int> = listOf(),
     val operandList : List<String> = listOf(),
     val gameLevel : GameLevel = GameLevel.NOVICE
 ) : UiState

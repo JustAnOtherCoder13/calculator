@@ -1,6 +1,5 @@
 package com.piconemarc.calculator.reducer.screenReducer
 
-import android.util.Log
 import com.piconemarc.calculator.reducer.HomeAction
 import com.piconemarc.calculator.reducer.HomeState
 import com.piconemarc.calculator.utils.interfaces.Reducer
@@ -24,6 +23,29 @@ val homeReducer: Reducer<HomeState> = { old, action ->
                         } else action.tableCheckedList
                     }
                 }
+            )
+        }
+        is HomeAction.UpdateOperandList -> {
+            old.copy(
+                operandList = when (action.isChecked) {
+                    true -> {
+                        if (!action.selectedOperandList.contains(action.operand)) {
+                            action.selectedOperandList.add(action.operand)
+                            action.selectedOperandList
+                        }else action.selectedOperandList
+                    }
+                    false -> {
+                        if (action.selectedOperandList.contains(action.operand)) {
+                            action.selectedOperandList.remove(action.operand)
+                            action.selectedOperandList
+                        }else action.selectedOperandList
+                    }
+                }
+            )
+        }
+        is HomeAction.UpdateGameLevel-> {
+            old.copy(
+                gameLevel = action.gameLevel
             )
         }
         else -> old

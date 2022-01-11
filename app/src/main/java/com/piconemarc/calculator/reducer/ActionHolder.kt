@@ -13,7 +13,7 @@ sealed class GlobalAction : UiAction{
 
 sealed class HomeAction : UiAction {
     data class UpdateTableList (val tableNumber : Int, val isChecked : Boolean, val tableCheckedList : MutableList<Int>) : HomeAction()
-    data class UpdateOperandList(val operandList : List<String>) : HomeAction()
+    data class UpdateOperandList(val operand : String, val isChecked : Boolean,val selectedOperandList : MutableList<String>) : HomeAction()
     data class UpdateGameLevel(val gameLevel : GameLevel) : HomeAction()
     data class StartNewGame(val gameParameters: GameParameters) : HomeAction()
 }
