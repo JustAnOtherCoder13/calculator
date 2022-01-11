@@ -1,4 +1,12 @@
 package com.piconemarc.calculator.viewModel
 
-class TopTenViewModel {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class TopTenViewModel @Inject constructor(
+
+) : BaseViewModel() {
+
+
 }

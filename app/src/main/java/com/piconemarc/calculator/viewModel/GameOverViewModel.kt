@@ -1,4 +1,12 @@
 package com.piconemarc.calculator.viewModel
 
-class GameOverViewModel {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+
+@HiltViewModel
+class GameOverViewModel @Inject constructor(
+
+) : BaseViewModel() {
+
 }
