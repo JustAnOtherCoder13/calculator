@@ -14,28 +14,29 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.piconemarc.calculator.ui.theme.LittleMarge
+import com.piconemarc.calculator.ui.theme.TableButtonHeight
+import com.piconemarc.calculator.ui.theme.TableButtonWidth
 
 @Composable
 fun <T> BaseTableToggleButton(
     buttonText: T,
     onChecked: (buttonText: T, isChecked: Boolean) -> Unit,
-    width: Dp = 30.dp
+    width: Dp = TableButtonWidth
 ) {
-    var isChecked by remember { mutableStateOf(false)}
+    var isChecked by remember { mutableStateOf(false) }
 
     if (buttonText is String || buttonText is Int) {
         Box(
             modifier = Modifier
-                .padding(3.dp)
-                .height(40.dp)
+                .height(TableButtonHeight)
                 .width(width)
                 .background(
                     color = if (!isChecked) MaterialTheme.colors.secondary
                     else MaterialTheme.colors.secondaryVariant,
                     shape = CircleShape
                 )
-                .padding(5.dp)
+                .padding(LittleMarge)
                 .clickable {
                     isChecked = !isChecked
                     onChecked(buttonText, isChecked)

@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.piconemarc.calculator.reducer.HomeAction
-import com.piconemarc.calculator.ui.screen.TableList
+import androidx.navigation.compose.rememberNavController
+import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
 import com.piconemarc.calculator.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,13 +19,12 @@ class MainActivity : ComponentActivity() {
         val homeViewModel by viewModels<HomeViewModel>()
 
         setContent {
+            val navController = rememberNavController()
+
             CalculatorTheme {
-                TableList(
-                    onTableListChange = { tableNumber, isChecked ->
-                        homeViewModel.dispatchAction(
-                            HomeAction.UpdateTableList(tableNumber, isChecked, homeViewModel.homeState.checkedTableList)
-                        )
-                    }
+                HomeScreen(
+                    navController = navController,
+                    homeViewModel = homeViewModel
                 )
             }
         }
