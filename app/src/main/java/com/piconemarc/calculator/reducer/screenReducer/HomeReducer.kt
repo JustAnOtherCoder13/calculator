@@ -32,22 +32,22 @@ val homeReducer: Reducer<HomeState> = { old, action ->
                         if (!action.selectedOperandList.contains(action.operand)) {
                             action.selectedOperandList.add(action.operand)
                             action.selectedOperandList
-                        }else action.selectedOperandList
+                        } else action.selectedOperandList
                     }
                     false -> {
                         if (action.selectedOperandList.contains(action.operand)) {
                             action.selectedOperandList.remove(action.operand)
                             action.selectedOperandList
-                        }else action.selectedOperandList
+                        } else action.selectedOperandList
                     }
                 }
             )
         }
-        is HomeAction.UpdateGameLevel-> {
+        is HomeAction.UpdateGameLevel -> {
             old.copy(
                 gameLevel = action.gameLevel
             )
         }
-        else -> old
+        is HomeAction.StartNewGame -> old.copy(gameParams = action.gameParameters)
     }
 }

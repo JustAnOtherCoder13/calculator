@@ -7,14 +7,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.piconemarc.calculator.R
 import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.reducer.HomeAction
-import com.piconemarc.calculator.ui.common.BaseTableToggleButton
+import com.piconemarc.calculator.ui.common.GameLevelRadioButton
+import com.piconemarc.calculator.ui.common.BaseToggleButton
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
+import com.piconemarc.calculator.ui.theme.BigMarge
 import com.piconemarc.calculator.ui.theme.RegularMarge
 import com.piconemarc.calculator.utils.GameLevel
 import com.piconemarc.calculator.utils.operandList
@@ -25,7 +26,10 @@ fun HomeScreen(
     navController: NavController,
     homeViewModel: HomeViewModel
 ) {
-    Column {
+    Column(
+        modifier = Modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
         HomeTitle()
         TableList(
             onTableListChange = { tableNumber, isChecked ->
@@ -47,19 +51,21 @@ fun HomeScreen(
                         homeViewModel.homeState.operandList.toMutableList()
                     )
                 )
-
             }
         )
-        GameLevel(onGameLevelChange = { gameLevel ->
-            homeViewModel.dispatchAction(
-                HomeAction.UpdateGameLevel(gameLevel)
-            )
-        })
+        GameLevel(
+            onGameLevelChange = { gameLevel ->
+                homeViewModel.dispatchAction(
+                    HomeAction.UpdateGameLevel(gameLevel)
+                )
+            },
+            selectedLevel = homeViewModel.homeState.gameLevel
+        )
         StartGameButton(onStartButtonClicked = {
             if (
                 homeViewModel.homeState.checkedTableList.isNotEmpty()
                 && homeViewModel.homeState.operandList.isNotEmpty()
-            )
+            ) {
                 homeViewModel.dispatchAction(
                     HomeAction.StartNewGame(
                         GameParameters(
@@ -69,17 +75,24 @@ fun HomeScreen(
                         )
                     )
                 )
+            }
         })
     }
 }
 
 @Composable
 fun HomeTitle() {
-    Text(
-        modifier = Modifier.padding(vertical = RegularMarge),
-        text = stringResource(R.string.HomeTitle),
-        style = MaterialTheme.typography.h1
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     )
+    {
+        Text(
+            modifier = Modifier.padding(vertical = RegularMarge),
+            text = stringResource(R.string.HomeTitle),
+            style = MaterialTheme.typography.h1
+        )
+    }
 }
 
 
@@ -99,7 +112,7 @@ fun TableList(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             for (i in 1..10) {
-                BaseTableToggleButton(
+                BaseToggleButton(
                     buttonText = i,
                     onChecked = onTableListChange
                 )
@@ -124,7 +137,7 @@ fun OperandList(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             for (o in operandList) {
-                BaseTableToggleButton(
+                BaseToggleButton(
                     buttonText = o,
                     onChecked = onOperandListChange
                 )
@@ -135,7 +148,8 @@ fun OperandList(
 
 @Composable
 private fun GameLevel(
-    onGameLevelChange: (gameLevel: GameLevel) -> Unit
+    onGameLevelChange: (gameLevel: GameLevel) -> Unit,
+    selectedLevel: GameLevel
 ) {
     GreenOutlinedColumn {
         Text(
@@ -148,24 +162,11 @@ private fun GameLevel(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            for (s in GameLevel.values()) {
-                BaseTableToggleButton(
-                    buttonText = s.value,
-                    //Todo have to optimize here
-                    onChecked = { buttonText, isChecked ->
-                        when (buttonText) {
-                            GameLevel.NOVICE.value -> {
-                                onGameLevelChange(GameLevel.NOVICE)
-                            }
-                            GameLevel.NOT_SO_BAD.value -> {
-                                onGameLevelChange(GameLevel.NOT_SO_BAD)
-                            }
-                            GameLevel.PRO.value -> {
-                                onGameLevelChange(GameLevel.PRO)
-                            }
-                        }
-                    },
-                    width = Dp.Unspecified
+            for (g in GameLevel.values()) {
+                GameLevelRadioButton(
+                    gameLevel = g,
+                    onChecked = { gameLevel -> onGameLevelChange(gameLevel) },
+                    isChecked = g.value == selectedLevel.value
                 )
             }
         }
@@ -174,10 +175,22 @@ private fun GameLevel(
 
 @Composable
 fun StartGameButton(onStartButtonClicked: () -> Unit) {
-    Button(onClick = onStartButtonClicked) {
-        Text(
-            text = stringResource(R.string.startGameButtonTitle),
-            style = MaterialTheme.typography.h3
-        )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(
+            onClick = onStartButtonClicked,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = BigMarge, vertical = RegularMarge)
+                .height(100.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.startGameButtonTitle),
+                style = MaterialTheme.typography.h3
+            )
+        }
     }
+
 }

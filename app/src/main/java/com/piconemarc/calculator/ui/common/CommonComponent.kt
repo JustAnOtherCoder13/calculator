@@ -15,12 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.piconemarc.calculator.ui.theme.*
+import com.piconemarc.calculator.utils.GameLevel
 
 @Composable
-fun <T> BaseTableToggleButton(
+fun <T> BaseToggleButton(
     buttonText: T,
     onChecked: (buttonText: T, isChecked: Boolean) -> Unit,
-    width: Dp = TableButtonWidth
 ) {
     var isChecked by remember { mutableStateOf(false) }
 
@@ -28,7 +28,7 @@ fun <T> BaseTableToggleButton(
         Box(
             modifier = Modifier
                 .height(TableButtonHeight)
-                .width(width)
+                .width(TableButtonWidth)
                 .background(
                     color = if (!isChecked) MaterialTheme.colors.secondary
                     else MaterialTheme.colors.secondaryVariant,
@@ -48,6 +48,28 @@ fun <T> BaseTableToggleButton(
             "StartNewGame",
             "BaseTableToggleButton: only String or Int could be passed in param"
         )
+    }
+}
+
+@Composable
+fun GameLevelRadioButton(
+    gameLevel: GameLevel,
+    onChecked: (gameLevel: GameLevel) -> Unit,
+    isChecked: Boolean
+) {
+    Box(
+        modifier = Modifier
+            .height(TableButtonHeight)
+            .background(
+                color = if (!isChecked) MaterialTheme.colors.secondary
+                else MaterialTheme.colors.secondaryVariant,
+                shape = CircleShape
+            )
+            .padding(LittleMarge)
+            .clickable { onChecked(gameLevel) },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = gameLevel.value)
     }
 }
 
