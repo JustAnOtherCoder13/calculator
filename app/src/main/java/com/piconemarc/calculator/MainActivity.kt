@@ -3,8 +3,11 @@ package com.piconemarc.calculator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
 import com.piconemarc.calculator.viewModel.HomeViewModel
@@ -16,16 +19,26 @@ import dagger.hilt.android.scopes.ActivityScoped
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val homeViewModel by viewModels<HomeViewModel>()
 
         setContent {
             val navController = rememberNavController()
-
             CalculatorTheme {
-                HomeScreen(
+                NavHost(
                     navController = navController,
-                    homeViewModel = homeViewModel
-                )
+                    startDestination = NavDestinations.Home.destination
+                ) {
+                    composable(route = NavDestinations.Home.getRoute()) {
+                        val homeViewModel = hiltViewModel<HomeViewModel>()
+                        HomeScreen(
+                            navController = navController,
+                            homeViewModel = homeViewModel
+                        )
+                    }
+                    composable(route = NavDestinations.GameScreen.getRoute()){
+                        //TODO implement game screen
+                    }
+                }
+
             }
         }
     }
