@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Calculator</string>
+    <string name="tableSelectionTitle">Choose your table</string>
+    <string name="chooseOperationTitle">Choose operation</string>
+    <string name="chooseLevelTitle">Choose your level</string>
+    <string name="HomeTitle">Start New Game</string>
+    <string name="startGameButtonTitle">Start</string>
 </resources>

@@ -3,12 +3,11 @@ package com.piconemarc.calculator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.viewModels
+import androidx.navigation.compose.rememberNavController
+import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
+import com.piconemarc.calculator.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.scopes.ActivityScoped
 
@@ -17,9 +16,16 @@ import dagger.hilt.android.scopes.ActivityScoped
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val homeViewModel by viewModels<HomeViewModel>()
+
         setContent {
+            val navController = rememberNavController()
+
             CalculatorTheme {
-                Text(text = "Calculator")
+                HomeScreen(
+                    navController = navController,
+                    homeViewModel = homeViewModel
+                )
             }
         }
     }
