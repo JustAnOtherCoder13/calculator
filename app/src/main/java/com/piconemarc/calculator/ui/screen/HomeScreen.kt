@@ -9,8 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.piconemarc.calculator.R
 import com.piconemarc.calculator.model.ui.GameParameters
+import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.reducer.HomeAction
 import com.piconemarc.calculator.ui.common.GameLevelRadioButton
 import com.piconemarc.calculator.ui.common.BaseToggleButton
@@ -66,15 +68,13 @@ fun HomeScreen(
                 homeViewModel.homeState.checkedTableList.isNotEmpty()
                 && homeViewModel.homeState.operandList.isNotEmpty()
             ) {
-                homeViewModel.dispatchAction(
-                    HomeAction.StartNewGame(
-                        GameParameters(
-                            homeViewModel.homeState.checkedTableList,
-                            homeViewModel.homeState.operandList,
-                            homeViewModel.homeState.gameLevel
-                        )
+                NavDestinations.GameScreen.doNavigation(navController,Gson().toJson(
+                    GameParameters(
+                        homeViewModel.homeState.checkedTableList,
+                        homeViewModel.homeState.operandList,
+                        homeViewModel.homeState.gameLevel
                     )
-                )
+                ))
             }
         })
     }
@@ -192,5 +192,4 @@ fun StartGameButton(onStartButtonClicked: () -> Unit) {
             )
         }
     }
-
 }

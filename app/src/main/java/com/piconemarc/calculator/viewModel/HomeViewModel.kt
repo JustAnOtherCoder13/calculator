@@ -26,16 +26,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch { state.collectLatest { uiState.value = it } }
     }
 
-
-
     override fun dispatchAction(action: HomeAction) {
         updateState(GlobalAction.UpdateHomeState(action))
-        when (action){
-            is HomeAction.UpdateTableList -> {
-
-            }
-            else -> {}
-        }
     }
 
 
