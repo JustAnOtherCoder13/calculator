@@ -1,6 +1,9 @@
 package com.piconemarc.calculator.ui.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -11,44 +14,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.reducer.GameAction
+import com.piconemarc.calculator.reducer.GameState
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
-import com.piconemarc.calculator.ui.theme.*
-import com.piconemarc.calculator.viewModel.GameViewModel
+import com.piconemarc.calculator.ui.theme.BigFontTextStyle
+import com.piconemarc.calculator.ui.theme.LittleBigFontTextStyle
+import com.piconemarc.calculator.ui.theme.LittleMarge
+import com.piconemarc.calculator.ui.theme.ScoreMarge
+import com.piconemarc.calculator.utils.interfaces.NavDestination
 
 
 @Composable
 fun GameScreen(
-    navController: NavController,
-    gameViewModel: GameViewModel,
-    gameParams: GameParameters
+    gameState: GameState,
+    onGameEvent: (gameAction: GameAction) -> Unit,
+    onNavEvent: (navDestination: NavDestination, arg: String) -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Title()
-        Timer()
+        Timer(gameState.remainingTime)
         Score(
-            goodAnswerChain = gameViewModel.gameState.goodAnswerChain.toString(),
-            score = gameViewModel.gameState.score.toString()
+            goodAnswerChain = gameState.goodAnswerChain.toString(),
+            score = gameState.score.toString()
         )
         Answer(
-            firstNumber = gameViewModel.gameState.firstNumber.toString(),
-            operand = gameViewModel.gameState.operand,
-            secondNumber = gameViewModel.gameState.secondNumber.toString(),
-            resultValue = gameViewModel.gameState.result,
-            onResultChange = {result ->
-                gameViewModel.dispatchAction(
-                    GameAction.UpdateResult(result)
-                )
+            firstNumber = gameState.firstNumber.toString(),
+            operand = gameState.operand,
+            secondNumber = gameState.secondNumber.toString(),
+            resultValue = gameState.result,
+            onResultChange = { result ->
+                onGameEvent(GameAction.UpdateResult(result))
             },
             onValidateResult = {
-                gameViewModel.dispatchAction(
-                    GameAction.UpdateOperation(
-                        gameParams,
-                        gameViewModel.gameState.questionCounter
-                    )
-                )
+                onGameEvent(GameAction.SubmitResult(gameState, doOnSuccess = {
+                    onGameEvent(GameAction.UpdateScore(gameState))
+                }))
             },
         )
 
@@ -57,12 +57,12 @@ fun GameScreen(
 
 @Composable
 private fun Answer(
-    firstNumber : String,
-    operand : String,
-    secondNumber : String,
-    resultValue : String,
-    onResultChange:(result: String)-> Unit,
-    onValidateResult : () -> Unit
+    firstNumber: String,
+    operand: String,
+    secondNumber: String,
+    resultValue: String,
+    onResultChange: (result: String) -> Unit,
+    onValidateResult: () -> Unit
 
 ) {
     GreenOutlinedColumn(
@@ -103,8 +103,8 @@ private fun Answer(
 
 @Composable
 private fun Score(
-    goodAnswerChain : String,
-    score : String
+    goodAnswerChain: String,
+    score: String
 ) {
     GreenOutlinedColumn {
         Row() {
@@ -122,13 +122,13 @@ private fun Score(
 }
 
 @Composable
-private fun Timer() {
+private fun Timer(remainingTime: Long) {
     GreenOutlinedColumn {
         Text(text = "Time", style = MaterialTheme.typography.h2)
         Row() {
-            Text(text = "00", style = LittleBigFontTextStyle)
-            Text(text = " : ", style = LittleBigFontTextStyle)
-            Text(text = "00", style = LittleBigFontTextStyle)
+            Text(text = "$remainingTime", style = LittleBigFontTextStyle)
+            //Text(text = " : ", style = LittleBigFontTextStyle)
+            //Text(text = "00", style = LittleBigFontTextStyle)
         }
     }
 }

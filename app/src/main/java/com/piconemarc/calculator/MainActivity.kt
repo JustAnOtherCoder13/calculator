@@ -14,9 +14,11 @@ import com.google.gson.Gson
 import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.reducer.GameAction
+import com.piconemarc.calculator.ui.screen.GameOverScreen
 import com.piconemarc.calculator.ui.screen.GameScreen
 import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
+import com.piconemarc.calculator.utils.initCountDownTimer
 import com.piconemarc.calculator.viewModel.GameViewModel
 import com.piconemarc.calculator.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,26 +45,42 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         HomeScreen(
-                            navController = navController,
-                            homeViewModel = homeViewModel
+                            homeState = homeViewModel.homeState,
+                            onHomeEvent = {homeAction -> homeViewModel.dispatchAction(homeAction)},
+                            onNavEvent = {navDestination, arg -> navDestination.doNavigation(navController, arg) }
                         )
                     }
-                    composable(route = NavDestinations.GameScreen.getRoute()){
+                    composable(route = NavDestinations.GameScreen.getRoute()){ it ->
                         val gameViewModel = hiltViewModel<GameViewModel>()
                         val gameParameters = Gson().fromJson(it.arguments?.getString(NavDestinations.GameScreen.key), GameParameters::class.java)
 
                         LaunchedEffect(key1 = gameViewModel){
                             gameViewModel.dispatchAction(
-                                GameAction.StartGame(
-                                   gameParameters
-                                )
+                                GameAction.StartGame(gameParameters)
+                            )
+                            initCountDownTimer(
+                                allocatedTime = gameParameters.gameLevel.allocatedTime,
+                                onTick_ = {remainingTime->
+                                    gameViewModel.dispatchAction(
+                                        GameAction.UpdateRemainingTime(remainingTime)
+                                    )
+                                    gameViewModel.dispatchAction(
+                                        GameAction.StartAnswerChrono
+                                    )
+                                },
+                                onFinish_ = {
+                                    NavDestinations.GameOverScreen.doNavigation(navController)
+                                }
                             )
                         }
                         GameScreen(
-                            navController = navController,
-                            gameViewModel = gameViewModel,
-                            gameParams = gameParameters
+                            gameState = gameViewModel.gameState,
+                            onGameEvent = {gameAction -> gameViewModel.dispatchAction(gameAction) },
+                            onNavEvent = {navDestination, arg -> navDestination.doNavigation(navController,arg) }
                         )
+                    }
+                    composable(route = NavDestinations.GameOverScreen.getRoute()){
+                        GameOverScreen()
                     }
                 }
 

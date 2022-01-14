@@ -12,20 +12,20 @@ sealed class GlobalAction : UiAction{
 }
 
 sealed class HomeAction : UiAction {
-    data class UpdateTableList (val tableNumber : Int, val isChecked : Boolean, val tableCheckedList : MutableList<Int>) : HomeAction()
-    data class UpdateOperandList(val operand : String, val isChecked : Boolean,val selectedOperandList : MutableList<String>) : HomeAction()
+    data class UpdateTableList (val tableNumber : Int, val isChecked : Boolean, val homeState: HomeState) : HomeAction()
+    data class UpdateOperandList(val operand : String, val isChecked : Boolean,val homeState: HomeState) : HomeAction()
     data class UpdateGameLevel(val gameLevel : GameLevel) : HomeAction()
 }
 
 sealed class GameAction : UiAction {
     data class StartGame(val gameParameters: GameParameters) : GameAction()
     data class UpdateRemainingTime ( val remainingTime : Long) : GameAction()
-    object UpdateGoodAnswerChainCount : GameAction()
-    object UpdateBonus : GameAction()
-    object UpdateScore : GameAction()
-    data class UpdateOperation(
-        val gameParameters: GameParameters,
-        val questionCounter : Int
-        ) : GameAction()
+    data class SubmitResult(val gameState: GameState,val doOnSuccess:()->Unit) : GameAction()
+    data class UpdateGoodAnswerChainCount(val gameState: GameState) : GameAction()
+    data class UpdateScore(val gameState: GameState) : GameAction()
+    data class UpdateOperation(val gameState: GameState) : GameAction()
     data class UpdateResult (val result : String) : GameAction()
+    object StartAnswerChrono : GameAction()
+    data class UpdateAnswerChrono(val time : Int) : GameAction()
+    object TimesUp : GameAction()
 }
