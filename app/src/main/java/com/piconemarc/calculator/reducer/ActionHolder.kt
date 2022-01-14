@@ -18,11 +18,14 @@ sealed class HomeAction : UiAction {
 }
 
 sealed class GameAction : UiAction {
+    data class StartGame(val gameParameters: GameParameters) : GameAction()
     data class UpdateRemainingTime ( val remainingTime : Long) : GameAction()
-    object UpdateQuestionCount : GameAction()
     object UpdateGoodAnswerChainCount : GameAction()
     object UpdateBonus : GameAction()
     object UpdateScore : GameAction()
-    object UpdateOperation : GameAction()
+    data class UpdateOperation(
+        val gameParameters: GameParameters,
+        val questionCounter : Int
+        ) : GameAction()
     data class UpdateResult (val result : String) : GameAction()
 }

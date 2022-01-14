@@ -1,5 +1,6 @@
 package com.piconemarc.calculator.reducer
 
+import com.piconemarc.calculator.reducer.screenReducer.gameReducer
 import com.piconemarc.calculator.reducer.screenReducer.homeReducer
 import com.piconemarc.calculator.utils.interfaces.Reducer
 import com.piconemarc.calculator.utils.interfaces.StoreSubscriber
@@ -13,6 +14,14 @@ val appReducer : Reducer<GlobalState> = {
                 old.homeState,
                 action.baseAction
             ) )
+        }
+        is GlobalAction.UpdateGameState -> {
+            old.copy(
+                gameState = gameReducer(
+                    old.gameState,
+                    action.baseAction
+                )
+            )
         }
         else -> old
     }

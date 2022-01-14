@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.navigation.NavDestinations
+import com.piconemarc.calculator.reducer.GameAction
 import com.piconemarc.calculator.ui.screen.GameScreen
 import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
@@ -47,10 +49,19 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(route = NavDestinations.GameScreen.getRoute()){
                         val gameViewModel = hiltViewModel<GameViewModel>()
+                        val gameParameters = Gson().fromJson(it.arguments?.getString(NavDestinations.GameScreen.key), GameParameters::class.java)
+
+                        LaunchedEffect(key1 = gameViewModel){
+                            gameViewModel.dispatchAction(
+                                GameAction.StartGame(
+                                   gameParameters
+                                )
+                            )
+                        }
                         GameScreen(
                             navController = navController,
                             gameViewModel = gameViewModel,
-                            gameParams = Gson().fromJson(it.arguments?.getString(NavDestinations.GameScreen.key), GameParameters::class.java)
+                            gameParams = gameParameters
                         )
                     }
                 }

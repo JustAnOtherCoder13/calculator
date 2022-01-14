@@ -26,61 +26,114 @@ fun GameScreen(
     gameParams: GameParameters
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Start", style = MaterialTheme.typography.h1)
-        GreenOutlinedColumn {
-            Text(text = "Time", style = MaterialTheme.typography.h2)
-            Row() {
-                Text(text = "00", style = LittleBigFontTextStyle)
-                Text(text = " : ", style = LittleBigFontTextStyle)
-                Text(text = "00", style = LittleBigFontTextStyle)
-            }
-        }
-        GreenOutlinedColumn {
-            Row() {
-                Text(text = "Chain : ", style = MaterialTheme.typography.h3)
-                Text(text = gameViewModel.gameState.goodAnswerChain.toString(), style = MaterialTheme.typography.h3)
-            }
-            Row() {
-                Text(text = "Score : ", style = LittleBigFontTextStyle)
-                Text(text = gameViewModel.gameState.score.toString(), style = LittleBigFontTextStyle)
-            }
-        }
-        GreenOutlinedColumn(padding = PaddingValues(top = ScoreMarge, start = LittleMarge, end = LittleMarge)) {
-            Row() {
-                Text(text = gameViewModel.gameState.firstNumber.toString(), style = BigFontTextStyle)
-                Text(text = " ${gameViewModel.gameState.operand} ", style = BigFontTextStyle)
-                Text(text = gameViewModel.gameState.secondNumber.toString(), style = BigFontTextStyle)
-                Text(text = " =", style = BigFontTextStyle)
-            }
-            TextField(
-                textStyle = BigFontTextStyle,
-                colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = MaterialTheme.colors.onPrimary,
-                    focusedLabelColor = MaterialTheme.colors.onPrimary,
-                ),
-                modifier = Modifier
-                    .width(200.dp),
-                value =  gameViewModel.gameState.result,
-                onValueChange = {result ->
-                    gameViewModel.dispatchAction(
-                        GameAction.UpdateResult(result)
+        Title()
+        Timer()
+        Score(
+            goodAnswerChain = gameViewModel.gameState.goodAnswerChain.toString(),
+            score = gameViewModel.gameState.score.toString()
+        )
+        Answer(
+            firstNumber = gameViewModel.gameState.firstNumber.toString(),
+            operand = gameViewModel.gameState.operand,
+            secondNumber = gameViewModel.gameState.secondNumber.toString(),
+            resultValue = gameViewModel.gameState.result,
+            onResultChange = {result ->
+                gameViewModel.dispatchAction(
+                    GameAction.UpdateResult(result)
+                )
+            },
+            onValidateResult = {
+                gameViewModel.dispatchAction(
+                    GameAction.UpdateOperation(
+                        gameParams,
+                        gameViewModel.gameState.questionCounter
                     )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                ),
-                label = { Text(text = "Result") }
-
-            )
-            BigButton (
-                onButtonClick = {
-                                gameViewModel.dispatchAction(
-                                    GameAction.UpdateOperation
-                                )
-                },
-                buttonText = "Next"
-            )
-        }
+                )
+            },
+        )
 
     }
+}
+
+@Composable
+private fun Answer(
+    firstNumber : String,
+    operand : String,
+    secondNumber : String,
+    resultValue : String,
+    onResultChange:(result: String)-> Unit,
+    onValidateResult : () -> Unit
+
+) {
+    GreenOutlinedColumn(
+        padding = PaddingValues(
+            top = ScoreMarge,
+            start = LittleMarge,
+            end = LittleMarge
+        )
+    ) {
+        Row() {
+            Text(text = firstNumber, style = BigFontTextStyle)
+            Text(text = " $operand ", style = BigFontTextStyle)
+            Text(text = secondNumber, style = BigFontTextStyle)
+            Text(text = " =", style = BigFontTextStyle)
+        }
+        TextField(
+            textStyle = BigFontTextStyle,
+            colors = TextFieldDefaults.textFieldColors(
+                cursorColor = MaterialTheme.colors.onPrimary,
+                focusedLabelColor = MaterialTheme.colors.onPrimary,
+            ),
+            modifier = Modifier
+                .width(200.dp),
+            value = resultValue,
+            onValueChange = onResultChange,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number
+            ),
+            label = { Text(text = "Result") }
+
+        )
+        BigButton(
+            onButtonClick = onValidateResult,
+            buttonText = "Next"
+        )
+    }
+}
+
+@Composable
+private fun Score(
+    goodAnswerChain : String,
+    score : String
+) {
+    GreenOutlinedColumn {
+        Row() {
+            Text(text = "Chain : ", style = MaterialTheme.typography.h3)
+            Text(
+                text = goodAnswerChain,
+                style = MaterialTheme.typography.h3
+            )
+        }
+        Row() {
+            Text(text = "Score : ", style = LittleBigFontTextStyle)
+            Text(text = score, style = LittleBigFontTextStyle)
+        }
+    }
+}
+
+@Composable
+private fun Timer() {
+    GreenOutlinedColumn {
+        Text(text = "Time", style = MaterialTheme.typography.h2)
+        Row() {
+            Text(text = "00", style = LittleBigFontTextStyle)
+            Text(text = " : ", style = LittleBigFontTextStyle)
+            Text(text = "00", style = LittleBigFontTextStyle)
+        }
+    }
+}
+
+@Composable
+private fun Title() {
+    Text(text = "Start", style = MaterialTheme.typography.h1)
 }
