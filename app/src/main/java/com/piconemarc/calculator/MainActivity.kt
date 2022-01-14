@@ -44,8 +44,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         HomeScreen(
-                            navController = navController,
-                            homeViewModel = homeViewModel
+                            homeState = homeViewModel.homeState,
+                            onHomeEvent = {homeAction -> homeViewModel.dispatchAction(homeAction)},
+                            onNavEvent = {navDestination, arg -> navDestination.doNavigation(navController, arg) }
                         )
                     }
                     composable(route = NavDestinations.GameScreen.getRoute()){ it ->

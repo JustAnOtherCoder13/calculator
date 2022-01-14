@@ -36,11 +36,7 @@ data class GameState(
     val operand: String = "",
     val secondNumber: Int = 0,
     val result: String = "",
-    val gameParameters: GameParameters = GameParameters(
-        listOf(),
-        listOf(),
-        GameLevel.NOVICE
-    )
+    val gameParameters: GameParameters = GameParameters()
 ) : UiState
 
 data class TopTenState(

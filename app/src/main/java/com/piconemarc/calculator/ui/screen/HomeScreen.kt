@@ -14,19 +14,22 @@ import com.piconemarc.calculator.R
 import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.reducer.HomeAction
+import com.piconemarc.calculator.reducer.HomeState
 import com.piconemarc.calculator.ui.common.GameLevelRadioButton
 import com.piconemarc.calculator.ui.common.BaseToggleButton
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
 import com.piconemarc.calculator.ui.theme.BigMarge
 import com.piconemarc.calculator.ui.theme.RegularMarge
 import com.piconemarc.calculator.utils.GameLevel
+import com.piconemarc.calculator.utils.interfaces.NavDestination
 import com.piconemarc.calculator.utils.operandList
 import com.piconemarc.calculator.viewModel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    homeViewModel: HomeViewModel
+    homeState: HomeState,
+    onHomeEvent : (homeAction : HomeAction)-> Unit,
+    onNavEvent : (navDestination : NavDestination, arg : String)-> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxHeight(),
@@ -35,46 +38,45 @@ fun HomeScreen(
         HomeTitle()
         TableList(
             onTableListChange = { tableNumber, isChecked ->
-                homeViewModel.dispatchAction(
+                onHomeEvent(
                     HomeAction.UpdateTableList(
                         tableNumber,
                         isChecked,
-                        homeViewModel.homeState.checkedTableList.toMutableList()
+                        homeState
                     )
                 )
             }
         )
         OperandList(
             onOperandListChange = { operand, isChecked ->
-                homeViewModel.dispatchAction(
+                onHomeEvent(
                     HomeAction.UpdateOperandList(
                         operand,
                         isChecked,
-                        homeViewModel.homeState.operandList.toMutableList()
+                        homeState
                     )
                 )
             }
         )
         GameLevel(
             onGameLevelChange = { gameLevel ->
-                homeViewModel.dispatchAction(
+                onHomeEvent(
                     HomeAction.UpdateGameLevel(gameLevel)
                 )
             },
-            selectedLevel = homeViewModel.homeState.gameLevel
+            selectedLevel = homeState.gameLevel
         )
         BigButton(onButtonClick = {
             if (
-                homeViewModel.homeState.checkedTableList.isNotEmpty()
-                && homeViewModel.homeState.operandList.isNotEmpty()
+                homeState.checkedTableList.isNotEmpty()
+                && homeState.operandList.isNotEmpty()
             ) {
-                NavDestinations.GameScreen.doNavigation(navController,Gson().toJson(
-                    GameParameters(
-                        homeViewModel.homeState.checkedTableList,
-                        homeViewModel.homeState.operandList,
-                        homeViewModel.homeState.gameLevel
+                onNavEvent(
+                    NavDestinations.GameScreen,
+                    Gson().toJson(
+                        GameParameters().build(homeState)
                     )
-                ))
+                )
             }
         })
     }

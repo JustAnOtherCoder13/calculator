@@ -11,16 +11,18 @@ val homeReducer: Reducer<HomeState> = { old, action ->
             old.copy(
                 checkedTableList = when (action.isChecked) {
                     true -> {
-                        if (!action.tableCheckedList.contains(action.tableNumber)) {
-                            action.tableCheckedList.add(action.tableNumber)
-                            action.tableCheckedList
-                        } else action.tableCheckedList
+                        if (!action.homeState.checkedTableList.contains(action.tableNumber)) {
+                            val newList = action.homeState.checkedTableList.toMutableList()
+                            newList.add(action.tableNumber)
+                            newList
+                        } else action.homeState.checkedTableList
                     }
                     false -> {
-                        if (action.tableCheckedList.contains(action.tableNumber)) {
-                            action.tableCheckedList.remove(action.tableNumber)
-                            action.tableCheckedList
-                        } else action.tableCheckedList
+                        if (action.homeState.checkedTableList.contains(action.tableNumber)) {
+                            val newList = action.homeState.checkedTableList.toMutableList()
+                            newList.remove(action.tableNumber)
+                            newList
+                        } else action.homeState.checkedTableList
                     }
                 }
             )
@@ -29,16 +31,18 @@ val homeReducer: Reducer<HomeState> = { old, action ->
             old.copy(
                 operandList = when (action.isChecked) {
                     true -> {
-                        if (!action.selectedOperandList.contains(action.operand)) {
-                            action.selectedOperandList.add(action.operand)
-                            action.selectedOperandList
-                        } else action.selectedOperandList
+                        if (!action.homeState.operandList.contains(action.operand)) {
+                            val newList = action.homeState.operandList.toMutableList()
+                            newList.add(action.operand)
+                            newList
+                        } else action.homeState.operandList
                     }
                     false -> {
-                        if (action.selectedOperandList.contains(action.operand)) {
-                            action.selectedOperandList.remove(action.operand)
-                            action.selectedOperandList
-                        } else action.selectedOperandList
+                        if (action.homeState.operandList.contains(action.operand)) {
+                            val newList = action.homeState.operandList.toMutableList()
+                            newList.remove(action.operand)
+                            newList
+                        } else action.homeState.operandList
                     }
                 }
             )
