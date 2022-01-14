@@ -36,7 +36,8 @@ data class GameState(
     val operand: String = "",
     val secondNumber: Int = 0,
     val result: String = "",
-    val gameParameters: GameParameters = GameParameters()
+    val gameParameters: GameParameters = GameParameters(),
+    val answerTime : Int = 0
 ) : UiState
 
 data class TopTenState(

@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.reducer.GameAction
+import com.piconemarc.calculator.ui.screen.GameOverScreen
 import com.piconemarc.calculator.ui.screen.GameScreen
 import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
@@ -55,9 +56,7 @@ class MainActivity : ComponentActivity() {
 
                         LaunchedEffect(key1 = gameViewModel){
                             gameViewModel.dispatchAction(
-                                GameAction.StartGame(
-                                   gameParameters
-                                )
+                                GameAction.StartGame(gameParameters)
                             )
                             initCountDownTimer(
                                 allocatedTime = gameParameters.gameLevel.allocatedTime,
@@ -65,17 +64,23 @@ class MainActivity : ComponentActivity() {
                                     gameViewModel.dispatchAction(
                                         GameAction.UpdateRemainingTime(remainingTime)
                                     )
+                                    gameViewModel.dispatchAction(
+                                        GameAction.StartAnswerChrono
+                                    )
                                 },
                                 onFinish_ = {
-
+                                    NavDestinations.GameOverScreen.doNavigation(navController)
                                 }
                             )
                         }
                         GameScreen(
-                            navController = navController,
-                            gameViewModel = gameViewModel,
-                            gameParams = gameParameters
+                            gameState = gameViewModel.gameState,
+                            onGameEvent = {gameAction -> gameViewModel.dispatchAction(gameAction) },
+                            onNavEvent = {navDestination, arg -> navDestination.doNavigation(navController,arg) }
                         )
+                    }
+                    composable(route = NavDestinations.GameOverScreen.getRoute()){
+                        GameOverScreen()
                     }
                 }
 

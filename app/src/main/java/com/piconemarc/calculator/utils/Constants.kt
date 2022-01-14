@@ -2,10 +2,15 @@ package com.piconemarc.calculator.utils
 
 import android.os.CountDownTimer
 
-enum class GameLevel(val value: String, val allocatedTime: Long) {
-    NOVICE("Novice", 60000 * 3),
-    NOT_SO_BAD("Not so bad", 60000 * 2),
-    PRO("Professional", 60000)
+enum class GameLevel(
+    val value: String,
+    val allocatedTime: Long,
+    val questionTime : Int,
+    val basePoint : Int
+    ) {
+    NOVICE("Novice", 120000, 12,1),
+    NOT_SO_BAD("Not so bad", 90000, 9,2),
+    PRO("Professional", 60000,7,3)
 }
 
 val operandList: List<String> = listOf("+", "-", "*")

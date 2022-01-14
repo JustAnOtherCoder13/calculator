@@ -18,4 +18,8 @@ object NavDestinations {
             navArgument(key) { type = NavType.StringType }
         )
     }
+
+    val GameOverScreen = object : NavDestination {
+        override val destination: String = "gameOver"
+    }
 }

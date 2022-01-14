@@ -1,10 +1,12 @@
 package com.piconemarc.calculator.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewModelScope
 import com.piconemarc.calculator.reducer.*
 import com.piconemarc.calculator.utils.interfaces.DefaultStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,11 +27,36 @@ class GameViewModel @Inject constructor(
     override fun dispatchAction(action: GameAction) {
         updateState(GlobalAction.UpdateGameState(action))
         when (action) {
-            is GameAction.UpdateScore -> {
+            is GameAction.StartAnswerChrono -> {
+                viewModelScope.launch {
+                    for (t in 0..100){
+                        this@GameViewModel.dispatchAction(
+                            GameAction.UpdateAnswerChrono(t)
+                        )
+                        delay(1000)
+                    }
+                }
+            }
+
+            is GameAction.SubmitResult -> {
+                try {
+                    this.dispatchAction(
+                        GameAction.UpdateGoodAnswerChainCount(action.gameState),
+                    )
+                    action.doOnSuccess()
+                }catch (e:Exception){
+                    Log.e("TAG", "dispatchAction: ",e )
+                }
+            }
+
+            is GameAction.UpdateScore->{
                 this.dispatchAction(
                     GameAction.UpdateOperation(
-                        action.oldState
+                        action.gameState
                     )
+                )
+                this.dispatchAction(
+                    GameAction.StartAnswerChrono
                 )
             }
             else -> {
@@ -39,16 +66,14 @@ class GameViewModel @Inject constructor(
     }
 }
 
-fun String.isOperationTrue(operand: String, y: String, submittedResult: String): Boolean {
-    val firstNumber: Int = this.trim().toInt()
-    val secondNumber = y.trim().toInt()
+fun Int.isOperationTrue(operand: String, y: Int, submittedResult: String): Boolean {
     val operationResult =
         if (submittedResult.trim().isNotEmpty()) submittedResult.trim().toInt() else 0
 
     return when (operand) {
-        "+" -> firstNumber + secondNumber == operationResult
-        "-" -> firstNumber - secondNumber == operationResult
-        "*" -> firstNumber * secondNumber == operationResult
+        "+" -> this + y == operationResult
+        "-" -> this - y == operationResult
+        "*" -> this * y == operationResult
         else -> {
             false
         }
