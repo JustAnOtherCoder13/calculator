@@ -48,6 +48,5 @@ val homeReducer: Reducer<HomeState> = { old, action ->
                 gameLevel = action.gameLevel
             )
         }
-        is HomeAction.StartNewGame -> old.copy(gameParams = action.gameParameters)
     }
 }

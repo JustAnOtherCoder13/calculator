@@ -63,7 +63,7 @@ fun HomeScreen(
             },
             selectedLevel = homeViewModel.homeState.gameLevel
         )
-        StartGameButton(onStartButtonClicked = {
+        BigButton(onButtonClick = {
             if (
                 homeViewModel.homeState.checkedTableList.isNotEmpty()
                 && homeViewModel.homeState.operandList.isNotEmpty()
@@ -174,20 +174,22 @@ private fun GameLevel(
 }
 
 @Composable
-fun StartGameButton(onStartButtonClicked: () -> Unit) {
+fun BigButton(
+    buttonText : String = stringResource(R.string.startGameButtonTitle),
+    onButtonClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = onStartButtonClicked,
+            onClick = onButtonClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = BigMarge, vertical = RegularMarge)
                 .height(100.dp)
         ) {
             Text(
-                text = stringResource(R.string.startGameButtonTitle),
+                text = buttonText,
                 style = MaterialTheme.typography.h3
             )
         }

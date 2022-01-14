@@ -74,9 +74,12 @@ fun GameLevelRadioButton(
 }
 
 @Composable
-fun GreenOutlinedColumn(body: @Composable () -> Unit) = Column(
+fun GreenOutlinedColumn(
+    padding: PaddingValues = PaddingValues(vertical = RegularMarge, horizontal = LittleMarge),
+    body: @Composable () -> Unit
+) = Column(
     modifier = Modifier
-        .padding(vertical = RegularMarge, horizontal = LittleMarge)
+        .padding(padding)
         .fillMaxWidth()
         .border(ThinBorder, MaterialTheme.colors.secondaryVariant, RoundedCornerShape(10.dp)),
     horizontalAlignment = Alignment.CenterHorizontally,
