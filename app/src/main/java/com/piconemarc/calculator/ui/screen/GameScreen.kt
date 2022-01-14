@@ -37,18 +37,35 @@ fun GameScreen(
             operand = gameViewModel.gameState.operand,
             secondNumber = gameViewModel.gameState.secondNumber.toString(),
             resultValue = gameViewModel.gameState.result,
-            onResultChange = {result ->
+            onResultChange = { result ->
                 gameViewModel.dispatchAction(
                     GameAction.UpdateResult(result)
                 )
             },
             onValidateResult = {
                 gameViewModel.dispatchAction(
-                    GameAction.UpdateOperation(
-                        gameParams,
-                        gameViewModel.gameState.questionCounter
+                    GameAction.UpdateGoodAnswerChainCount(
+                        gameViewModel.gameState.goodAnswerChain,
+                        gameViewModel.gameState.result,
+                        gameViewModel.gameState.firstNumber.toString(),
+                        gameViewModel.gameState.secondNumber.toString(),
+                        gameViewModel.gameState.operand
                     )
                 )
+                gameViewModel.dispatchAction(
+                    GameAction.UpdateScore(
+                        gameViewModel.gameState.score,
+                        gameViewModel.gameState.bonus,
+                        gameViewModel.gameState.result,
+                        gameViewModel.gameState.firstNumber.toString(),
+                        gameViewModel.gameState.secondNumber.toString(),
+                        gameViewModel.gameState.operand,
+                        gameParams,
+                        gameViewModel.gameState.questionCounter,
+                        gameViewModel.gameState
+                    )
+                )
+
             },
         )
 
@@ -57,12 +74,12 @@ fun GameScreen(
 
 @Composable
 private fun Answer(
-    firstNumber : String,
-    operand : String,
-    secondNumber : String,
-    resultValue : String,
-    onResultChange:(result: String)-> Unit,
-    onValidateResult : () -> Unit
+    firstNumber: String,
+    operand: String,
+    secondNumber: String,
+    resultValue: String,
+    onResultChange: (result: String) -> Unit,
+    onValidateResult: () -> Unit
 
 ) {
     GreenOutlinedColumn(
@@ -103,8 +120,8 @@ private fun Answer(
 
 @Composable
 private fun Score(
-    goodAnswerChain : String,
-    score : String
+    goodAnswerChain: String,
+    score: String
 ) {
     GreenOutlinedColumn {
         Row() {

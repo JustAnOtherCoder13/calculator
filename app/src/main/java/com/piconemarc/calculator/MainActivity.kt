@@ -17,6 +17,7 @@ import com.piconemarc.calculator.reducer.GameAction
 import com.piconemarc.calculator.ui.screen.GameScreen
 import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
+import com.piconemarc.calculator.utils.initCountDownTimer
 import com.piconemarc.calculator.viewModel.GameViewModel
 import com.piconemarc.calculator.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
                             homeViewModel = homeViewModel
                         )
                     }
-                    composable(route = NavDestinations.GameScreen.getRoute()){
+                    composable(route = NavDestinations.GameScreen.getRoute()){ it ->
                         val gameViewModel = hiltViewModel<GameViewModel>()
                         val gameParameters = Gson().fromJson(it.arguments?.getString(NavDestinations.GameScreen.key), GameParameters::class.java)
 
@@ -56,6 +57,17 @@ class MainActivity : ComponentActivity() {
                                 GameAction.StartGame(
                                    gameParameters
                                 )
+                            )
+                            initCountDownTimer(
+                                allocatedTime = gameParameters.gameLevel.allocatedTime,
+                                onTick_ = {remainingTime->
+                                    gameViewModel.dispatchAction(
+                                        GameAction.UpdateRemainingTime(remainingTime)
+                                    )
+                                },
+                                onFinish_ = {
+
+                                }
                             )
                         }
                         GameScreen(

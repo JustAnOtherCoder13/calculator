@@ -30,12 +30,17 @@ data class GameState(
     val remainingTime: Long = 0L,
     val questionCounter: Int = 0,
     val goodAnswerChain: Int = 0,
-    val bonus: String = "",
+    val bonus: Long = 0L,
     val score: Long = 0L,
     val firstNumber: Int = 0,
     val operand: String = "",
     val secondNumber: Int = 0,
-    val result: String = ""
+    val result: String = "",
+    val gameParameters: GameParameters = GameParameters(
+        listOf(),
+        listOf(),
+        GameLevel.NOVICE
+    )
 ) : UiState
 
 data class TopTenState(
