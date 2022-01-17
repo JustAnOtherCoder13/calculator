@@ -1,7 +1,6 @@
 package com.piconemarc.calculator.utils
 
 import android.os.CountDownTimer
-import kotlin.random.Random
 
 enum class GameLevel(
     val value: String,
@@ -16,9 +15,15 @@ enum class GameLevel(
 
 val operandList: List<String> = listOf("+", "-", "*")
 
+enum class GoodAnswerBonus(val value: Long) {
+    NONE(1),
+    BASIC(300),
+    NOT_SO_BAD(700),
+    GOOD(1100),
+    VERY_GOOD(1700),
+}
 
-
-fun countDownTimer(
+fun initCountDownTimer(
     allocatedTime: Long,
     onTick_: (millisUntilFinished: Long) -> Unit,
     onFinish_: () -> Unit
@@ -30,4 +35,4 @@ fun countDownTimer(
     override fun onFinish() {
         onFinish_()
     }
-}
+}.start()

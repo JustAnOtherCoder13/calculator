@@ -11,34 +11,32 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
+import com.piconemarc.calculator.R
 import com.piconemarc.calculator.reducer.GameAction
 import com.piconemarc.calculator.reducer.GameState
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
 import com.piconemarc.calculator.ui.theme.*
 import com.piconemarc.calculator.utils.GameLevel
-import com.piconemarc.calculator.utils.interfaces.NavDestination
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.piconemarc.calculator.utils.GoodAnswerBonus
 
 
 @Composable
 fun GameScreen(
     gameState: GameState,
     onGameEvent: (gameAction: GameAction) -> Unit,
-    onNavEvent: (navDestination: NavDestination, arg: String) -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Title()
-        Timer(gameState.remainingTime)
+        Timer(remainingTime = gameState.remainingTime)
         Score(
             goodAnswerChain = gameState.goodAnswerChain.toString(),
             score = gameState.score.toString()
         )
+        BonusInfo(bonus = gameState.bonus)
         Answer(
             firstNumber = gameState.firstNumber.toString(),
             operand = gameState.operand,
@@ -48,14 +46,76 @@ fun GameScreen(
                 onGameEvent(GameAction.UpdateResult(result))
             },
             gameLevel = gameState.gameParameters.gameLevel,
-            onValidateResult = {
-                onGameEvent(GameAction.SubmitResult(gameState, doOnSuccess = {
-                    onGameEvent(GameAction.UpdateScore(gameState))
-                }))
+            onValidateResult = { result ->
+                onGameEvent(
+                    GameAction.SubmitResult(
+                        gameState = gameState,
+                        result = result,
+                        doOnSuccess = {
+                            onGameEvent(
+                                GameAction.UpdateScore(
+                                    gameState = gameState,
+                                    result = result
+                                )
+                            )
+                        })
+                )
             },
-            resultList = gameState.noviceAnswerValues
+            resultList = gameState.noviceAnswerValues,
         )
+    }
+}
 
+@Composable
+private fun BonusInfo(bonus: Long) {
+    Text(
+        text = stringResource(R.string.GameBonusInfoTitle) + " $bonus",
+        style = when (bonus) {
+            GoodAnswerBonus.BASIC.value -> MaterialTheme.typography.h3
+            GoodAnswerBonus.NOT_SO_BAD.value -> MaterialTheme.typography.h3
+            GoodAnswerBonus.GOOD.value -> MaterialTheme.typography.h2
+            GoodAnswerBonus.VERY_GOOD.value -> MaterialTheme.typography.h1
+            else -> MaterialTheme.typography.body1
+        }
+    )
+}
+
+//-------------------------Base component--------------------------------------------
+@Composable
+private fun Title() {
+    Text(text = stringResource(R.string.gameScreenTitle), style = MaterialTheme.typography.h1)
+}
+
+@Composable
+private fun Timer(remainingTime: Long) {
+    GreenOutlinedColumn {
+        Text(text = stringResource(R.string.timerInfoTitle), style = MaterialTheme.typography.h2)
+        Row {
+            Text(text = "$remainingTime", style = MediumBigFontTextStyle)
+        }
+    }
+}
+
+@Composable
+private fun Score(
+    goodAnswerChain: String,
+    score: String
+) {
+    GreenOutlinedColumn {
+        Row {
+            Text(
+                text = stringResource(R.string.gameChainInfoTitle),
+                style = MaterialTheme.typography.h3
+            )
+            Text(
+                text = goodAnswerChain,
+                style = MaterialTheme.typography.h3
+            )
+        }
+        Row {
+            Text(text = stringResource(R.string.scoreGameInfoTitle), style = MediumBigFontTextStyle)
+            Text(text = score, style = MediumBigFontTextStyle)
+        }
     }
 }
 
@@ -67,7 +127,7 @@ private fun Answer(
     resultValue: String,
     onResultChange: (result: String) -> Unit,
     gameLevel: GameLevel,
-    onValidateResult: () -> Unit,
+    onValidateResult: (result: String) -> Unit,
     resultList: List<Int>
 ) {
     GreenOutlinedColumn(
@@ -77,7 +137,7 @@ private fun Answer(
             end = LittleMarge
         )
     ) {
-        Row() {
+        Row {
             Text(text = firstNumber, style = BigFontTextStyle)
             Text(text = " $operand ", style = BigFontTextStyle)
             Text(text = secondNumber, style = BigFontTextStyle)
@@ -86,8 +146,7 @@ private fun Answer(
         when (gameLevel) {
             GameLevel.NOVICE -> {
                 ResultSelector(
-                    onResultChange,
-                    onValidateResult,
+                    onNoviceResultButtonClick = onValidateResult,
                     resultList
                 )
             }
@@ -102,30 +161,23 @@ private fun Answer(
     }
 }
 
+
+//----------------------Sub Component--------------------------------------------
 @Composable
 private fun ResultSelector(
-    onResultChange: (result: String) -> Unit,
-    onValidateResult: () -> Unit,
+    onNoviceResultButtonClick: (result: String) -> Unit,
     answerList: List<Int>
 ) {
-    val scope = rememberCoroutineScope()
-
-    Text(text = "Choose your answer :", style = LittleBigFontTextStyle)
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = RegularMarge),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        answerList.forEach {
+        answerList.forEach { integerResult ->
             NoviceAnswerButton(
-                value = it.toString(),
-                onButtonClick = {
-                    scope.launch {
-                        onResultChange(it)
-                        delay(500)
-                        onValidateResult()
-                    }
-                })
-
+                value = integerResult.toString(),
+                onButtonClick = { result -> onNoviceResultButtonClick(result) })
         }
     }
 }
@@ -137,10 +189,8 @@ private fun NoviceAnswerButton(
 ) {
     Box(
         modifier = Modifier
-            .clickable {
-                onButtonClick(value)
-            }
-            .size(80.dp)
+            .clickable { onButtonClick(value) }
+            .size(NoviceAnswerButtonSize)
             .background(
                 color = MaterialTheme.colors.primary,
                 shape = CircleShape
@@ -161,7 +211,7 @@ private fun NoviceAnswerButton(
 private fun ResultTextField(
     resultValue: String,
     onResultChange: (result: String) -> Unit,
-    onValidateResult: () -> Unit
+    onValidateResult: (result: String) -> Unit
 ) {
     TextField(
         textStyle = BigFontTextStyle,
@@ -170,54 +220,17 @@ private fun ResultTextField(
             focusedLabelColor = MaterialTheme.colors.onPrimary,
         ),
         modifier = Modifier
-            .width(200.dp),
+            .width(TextFieldWidth),
         value = resultValue,
         onValueChange = onResultChange,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
-        label = { Text(text = "Result") }
+        label = { Text(text = stringResource(R.string.resultTextFieldLabel)) }
 
     )
     BigButton(
-        onButtonClick = onValidateResult,
-        buttonText = "Next"
+        onButtonClick = { onValidateResult(resultValue) },
+        buttonText = stringResource(R.string.validateAnswerButtonText)
     )
-}
-
-@Composable
-private fun Score(
-    goodAnswerChain: String,
-    score: String
-) {
-    GreenOutlinedColumn {
-        Row() {
-            Text(text = "Chain : ", style = MaterialTheme.typography.h3)
-            Text(
-                text = goodAnswerChain,
-                style = MaterialTheme.typography.h3
-            )
-        }
-        Row() {
-            Text(text = "Score : ", style = MediumBigFontTextStyle)
-            Text(text = score, style = MediumBigFontTextStyle)
-        }
-    }
-}
-
-@Composable
-private fun Timer(remainingTime: Long) {
-    GreenOutlinedColumn {
-        Text(text = "Time", style = MaterialTheme.typography.h2)
-        Row() {
-            Text(text = "$remainingTime", style = MediumBigFontTextStyle)
-            //Text(text = " : ", style = LittleBigFontTextStyle)
-            //Text(text = "00", style = LittleBigFontTextStyle)
-        }
-    }
-}
-
-@Composable
-private fun Title() {
-    Text(text = "Start", style = MaterialTheme.typography.h1)
 }

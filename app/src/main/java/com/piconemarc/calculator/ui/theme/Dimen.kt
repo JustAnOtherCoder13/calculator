@@ -11,6 +11,10 @@ val XlMarge = 30.dp
 
 val ScoreMarge = 100.dp
 
+val TextFieldWidth = 200.dp
+
+val NoviceAnswerButtonSize = 80.dp
+
 val ThinBorder = 1.dp
 
 val TableButtonWidth = 30.dp

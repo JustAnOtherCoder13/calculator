@@ -18,7 +18,7 @@ import com.piconemarc.calculator.ui.screen.GameOverScreen
 import com.piconemarc.calculator.ui.screen.GameScreen
 import com.piconemarc.calculator.ui.screen.HomeScreen
 import com.piconemarc.calculator.ui.theme.CalculatorTheme
-import com.piconemarc.calculator.utils.countDownTimer
+import com.piconemarc.calculator.utils.initCountDownTimer
 import com.piconemarc.calculator.viewModel.GameViewModel
 import com.piconemarc.calculator.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +36,8 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = NavDestinations.Home.destination
                 ) {
+                    //------------------------------------------------------HOME-------------
+
                     composable(route = NavDestinations.Home.getRoute()) {
                         val homeViewModel = hiltViewModel<HomeViewModel>()
 
@@ -55,25 +57,27 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+
+                    //------------------------------------------------------GAME-------------
+
                     composable(route = NavDestinations.GameScreen.getRoute()) {
                         val gameViewModel = hiltViewModel<GameViewModel>()
                         val gameParameters = Gson().fromJson(
                             it.arguments?.getString(NavDestinations.GameScreen.key),
                             GameParameters::class.java
                         )
-
                         LaunchedEffect(key1 = gameViewModel) {
                             gameViewModel.dispatchAction(
-                                GameAction.StartGame(gameParameters)
+                                GameAction.StartGame(gameParameters = gameParameters)
                             )
-                            val gameTimer = countDownTimer(
+                            gameViewModel.dispatchAction(
+                                GameAction.StartAnswerChrono(gameState = gameViewModel.gameState)
+                            )
+                            initCountDownTimer(
                                 allocatedTime = gameParameters.gameLevel.allocatedTime,
                                 onTick_ = { remainingTime ->
                                     gameViewModel.dispatchAction(
-                                        GameAction.UpdateRemainingTime(remainingTime)
-                                    )
-                                    gameViewModel.dispatchAction(
-                                        GameAction.StartAnswerChrono
+                                        GameAction.UpdateRemainingTime(remainingTime = remainingTime)
                                     )
                                 },
                                 onFinish_ = {
@@ -83,33 +87,29 @@ class MainActivity : ComponentActivity() {
                                             PlayedGameInfo(
                                                 score = gameViewModel.gameState.score,
                                                 answeredQuestions = gameViewModel.gameState.questionCounter,
-                                                goodAnswer = 0,
-                                                bestGoodAnswerChain = 0,
-                                                answerPerTime = ""
+                                                goodAnswer = gameViewModel.gameState.goodAnswerCount,
+                                                bestGoodAnswerChain = gameViewModel.gameState.bestGoodAnswerChain,
+                                                answerPerTime = "1 answer per ${(gameViewModel.gameState.gameParameters.gameLevel.allocatedTime/1000)/gameViewModel.gameState.questionCounter} second"
                                             )
                                         )
                                     )
                                 }
                             )
-                            gameTimer.start()
                         }
                         GameScreen(
                             gameState = gameViewModel.gameState,
-                            onGameEvent = { gameAction -> gameViewModel.dispatchAction(gameAction) },
-                            onNavEvent = { navDestination, arg ->
-                                navDestination.doNavigation(
-                                    navController,
-                                    arg
-                                )
-                            }
+                            onGameEvent = { gameAction -> gameViewModel.dispatchAction(action = gameAction) },
                         )
                     }
+
+                    //------------------------------------------------------GAME OVER-------------
+
                     composable(route = NavDestinations.GameOverScreen.getRoute()) {
                         val playedGameInfo = Gson().fromJson(
                             it.arguments?.getString(NavDestinations.GameOverScreen.key),
                             PlayedGameInfo::class.java
                         )
-                        GameOverScreen(playedGameInfo)
+                        GameOverScreen(playedGameInfo = playedGameInfo)
                     }
                 }
 

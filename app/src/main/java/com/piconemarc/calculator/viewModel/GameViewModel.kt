@@ -1,12 +1,12 @@
 package com.piconemarc.calculator.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewModelScope
 import com.piconemarc.calculator.reducer.*
+import com.piconemarc.calculator.utils.GameLevel
+import com.piconemarc.calculator.utils.initCountDownTimer
 import com.piconemarc.calculator.utils.interfaces.DefaultStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,21 +27,41 @@ class GameViewModel @Inject constructor(
     override fun dispatchAction(action: GameAction) {
         updateState(GlobalAction.UpdateGameState(action))
         when (action) {
-            //todo change chrono here
             is GameAction.StartAnswerChrono -> {
-                viewModelScope.launch {
-                    for (t in 0..100) {
-                        this@GameViewModel.dispatchAction(
-                            GameAction.UpdateAnswerChrono(t)
-                        )
-                        delay(1000)
+                initCountDownTimer(
+                    allocatedTime = (action.gameState.gameParameters.gameLevel.questionTime*1000).toLong(),
+                    onTick_ = {
+                              this.dispatchAction(
+                                  GameAction.UpdateAnswerChrono((it/1000).toInt())
+                              )
+                    },
+                    onFinish_ = {
+                        when(action.gameState.gameParameters.gameLevel){
+                            GameLevel.PRO->{
+                                this.dispatchAction(
+                                    GameAction.SubmitResult(
+                                        gameState = action.gameState,
+                                        result = "",
+                                        doOnSuccess = {
+                                            this.dispatchAction(
+                                                GameAction.UpdateScore(
+                                                    gameState = gameState,
+                                                    result = ""
+                                                )
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                            else -> {}
+                        }
                     }
-                }
+                )
             }
 
             is GameAction.SubmitResult -> {
                     this.dispatchAction(
-                        GameAction.UpdateGoodAnswerChainCount(action.gameState),
+                        GameAction.UpdateGoodAnswerChainCount(action.gameState, action.result),
                     )
                     action.doOnSuccess()
             }
@@ -53,7 +73,7 @@ class GameViewModel @Inject constructor(
                     )
                 )
                 this.dispatchAction(
-                    GameAction.StartAnswerChrono
+                    GameAction.StartAnswerChrono(action.gameState)
                 )
             }
             else -> {
@@ -63,16 +83,3 @@ class GameViewModel @Inject constructor(
     }
 }
 
-fun Int.isOperationTrue(operand: String, y: Int, submittedResult: String): Boolean {
-    val operationResult =
-        if (submittedResult.trim().isNotEmpty()) submittedResult.trim().toInt() else 0
-
-    return when (operand) {
-        "+" -> this + y == operationResult
-        "-" -> this - y == operationResult
-        "*" -> this * y == operationResult
-        else -> {
-            false
-        }
-    }
-}
