@@ -11,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,7 +22,8 @@ import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
 import com.piconemarc.calculator.ui.theme.*
 import com.piconemarc.calculator.utils.GameLevel
 import com.piconemarc.calculator.utils.interfaces.NavDestination
-import kotlin.random.Random
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -46,12 +48,12 @@ fun GameScreen(
                 onGameEvent(GameAction.UpdateResult(result))
             },
             gameLevel = gameState.gameParameters.gameLevel,
-            goodAnswer = gameState.goodAnswer,
             onValidateResult = {
                 onGameEvent(GameAction.SubmitResult(gameState, doOnSuccess = {
                     onGameEvent(GameAction.UpdateScore(gameState))
                 }))
             },
+            resultList = gameState.noviceAnswerValues
         )
 
     }
@@ -65,9 +67,8 @@ private fun Answer(
     resultValue: String,
     onResultChange: (result: String) -> Unit,
     gameLevel: GameLevel,
-    goodAnswer: String,
     onValidateResult: () -> Unit,
-
+    resultList: List<Int>
 ) {
     GreenOutlinedColumn(
         padding = PaddingValues(
@@ -85,9 +86,9 @@ private fun Answer(
         when (gameLevel) {
             GameLevel.NOVICE -> {
                 ResultSelector(
-                    goodAnswer,
                     onResultChange,
-                    onValidateResult
+                    onValidateResult,
+                    resultList
                 )
             }
             else -> {
@@ -103,59 +104,30 @@ private fun Answer(
 
 @Composable
 private fun ResultSelector(
-    goodAnswer: String,
     onResultChange: (result: String) -> Unit,
-    onValidateResult: () -> Unit
+    onValidateResult: () -> Unit,
+    answerList: List<Int>
 ) {
-    val randomAnswerPosition = Random.nextInt(0,2)
+    val scope = rememberCoroutineScope()
 
     Text(text = "Choose your answer :", style = LittleBigFontTextStyle)
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        for (i in 0..3) {
-            when (i) {
-                randomAnswerPosition -> {
-                    NoviceAnswerButton(
-                        value = goodAnswer,
-                        onButtonClick = {
-                            onResultChange(it)
-                            onValidateResult()
-                        }
-                    )
-                }
-                else -> {
-                    RandomNoviceAnswerButton(
-                        goodAnswer = goodAnswer,
-                        onButtonClick = {
-                            onResultChange(it)
-                            onValidateResult()
-                        }
-                    )
-                }
-            }
+        answerList.forEach {
+            NoviceAnswerButton(
+                value = it.toString(),
+                onButtonClick = {
+                    scope.launch {
+                        onResultChange(it)
+                        delay(500)
+                        onValidateResult()
+                    }
+                })
+
         }
     }
-}
-
-@Composable
-private fun RandomNoviceAnswerButton(
-    goodAnswer: String,
-    onButtonClick: (value: String) -> Unit
-) {
-    val randomModifierBound =
-        if (goodAnswer.toInt() > 1) goodAnswer.toInt() else Random.nextInt(3, 10)
-    val randomValueModifier = Random.nextInt(1, randomModifierBound)
-    val value = if (goodAnswer.toInt() - randomValueModifier < 0) {
-        goodAnswer.toInt() + randomValueModifier
-    } else {
-        goodAnswer.toInt() - randomValueModifier
-    }
-    NoviceAnswerButton(
-        value = value.toString(),
-        onButtonClick = onButtonClick
-    )
 }
 
 @Composable
@@ -168,7 +140,7 @@ private fun NoviceAnswerButton(
             .clickable {
                 onButtonClick(value)
             }
-            .size(100.dp)
+            .size(80.dp)
             .background(
                 color = MaterialTheme.colors.primary,
                 shape = CircleShape

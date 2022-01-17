@@ -38,7 +38,9 @@ data class GameState(
     val result: String = "",
     val gameParameters: GameParameters = GameParameters(),
     val answerTime : Int = 0,
-    val goodAnswer : String = "0"
+    val goodAnswer : String = "0",
+    val answerPosition : Int = 0,
+    val noviceAnswerValues : List<Int> = listOf()
 ) : UiState
 
 data class TopTenState(
