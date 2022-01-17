@@ -14,7 +14,6 @@ data class GlobalState(
 ) : UiState
 
 data class HomeState(
-    val gameParams: GameParameters = GameParameters(listOf(), listOf(), GameLevel.NOVICE),
     val checkedTableList: List<Int> = listOf(),
     val operandList : List<String> = listOf(),
     val gameLevel : GameLevel = GameLevel.NOVICE
@@ -31,12 +30,18 @@ data class GameState(
     val remainingTime: Long = 0L,
     val questionCounter: Int = 0,
     val goodAnswerChain: Int = 0,
-    val bonus: String = "",
+    val bonus: Long = 0L,
     val score: Long = 0L,
     val firstNumber: Int = 0,
     val operand: String = "",
     val secondNumber: Int = 0,
-    val result: String = ""
+    val result: String = "",
+    val gameParameters: GameParameters = GameParameters(),
+    val answerTime : Int = 0,
+    val noviceAnswerValues : List<Int> = listOf(),
+    val goodAnswerCount : Int = 0,
+    val bestGoodAnswerChain : Int = 0,
+    val answerPerTime : String = ""
 ) : UiState
 
 data class TopTenState(

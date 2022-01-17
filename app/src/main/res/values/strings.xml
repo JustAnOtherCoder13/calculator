@@ -5,4 +5,11 @@
     <string name="chooseLevelTitle">Choose your level</string>
     <string name="HomeTitle">Start New Game</string>
     <string name="startGameButtonTitle">Start</string>
+    <string name="resultTextFieldLabel">Result</string>
+    <string name="validateAnswerButtonText">Next</string>
+    <string name="gameChainInfoTitle">\"Chain : \"</string>
+    <string name="scoreGameInfoTitle">\"Score : \"</string>
+    <string name="timerInfoTitle">Time</string>
+    <string name="gameScreenTitle">Start</string>
+    <string name="GameBonusInfoTitle">Bonus : X</string>
 </resources>

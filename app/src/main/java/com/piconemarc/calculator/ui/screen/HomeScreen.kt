@@ -8,23 +8,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.piconemarc.calculator.R
 import com.piconemarc.calculator.model.ui.GameParameters
+import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.reducer.HomeAction
-import com.piconemarc.calculator.ui.common.GameLevelRadioButton
+import com.piconemarc.calculator.reducer.HomeState
 import com.piconemarc.calculator.ui.common.BaseToggleButton
+import com.piconemarc.calculator.ui.common.GameLevelRadioButton
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
 import com.piconemarc.calculator.ui.theme.BigMarge
 import com.piconemarc.calculator.ui.theme.RegularMarge
 import com.piconemarc.calculator.utils.GameLevel
+import com.piconemarc.calculator.utils.interfaces.NavDestination
 import com.piconemarc.calculator.utils.operandList
-import com.piconemarc.calculator.viewModel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    homeViewModel: HomeViewModel
+    homeState: HomeState,
+    onHomeEvent : (homeAction : HomeAction)-> Unit,
+    onNavEvent : (navDestination : NavDestination, arg : String)-> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxHeight(),
@@ -33,46 +36,43 @@ fun HomeScreen(
         HomeTitle()
         TableList(
             onTableListChange = { tableNumber, isChecked ->
-                homeViewModel.dispatchAction(
+                onHomeEvent(
                     HomeAction.UpdateTableList(
                         tableNumber,
                         isChecked,
-                        homeViewModel.homeState.checkedTableList.toMutableList()
+                        homeState
                     )
                 )
             }
         )
         OperandList(
             onOperandListChange = { operand, isChecked ->
-                homeViewModel.dispatchAction(
+                onHomeEvent(
                     HomeAction.UpdateOperandList(
                         operand,
                         isChecked,
-                        homeViewModel.homeState.operandList.toMutableList()
+                        homeState
                     )
                 )
             }
         )
         GameLevel(
             onGameLevelChange = { gameLevel ->
-                homeViewModel.dispatchAction(
+                onHomeEvent(
                     HomeAction.UpdateGameLevel(gameLevel)
                 )
             },
-            selectedLevel = homeViewModel.homeState.gameLevel
+            selectedLevel = homeState.gameLevel
         )
-        StartGameButton(onStartButtonClicked = {
+        BigButton(onButtonClick = {
             if (
-                homeViewModel.homeState.checkedTableList.isNotEmpty()
-                && homeViewModel.homeState.operandList.isNotEmpty()
+                homeState.checkedTableList.isNotEmpty()
+                && homeState.operandList.isNotEmpty()
             ) {
-                homeViewModel.dispatchAction(
-                    HomeAction.StartNewGame(
-                        GameParameters(
-                            homeViewModel.homeState.checkedTableList,
-                            homeViewModel.homeState.operandList,
-                            homeViewModel.homeState.gameLevel
-                        )
+                onNavEvent(
+                    NavDestinations.GameScreen,
+                    Gson().toJson(
+                        GameParameters().build(homeState)
                     )
                 )
             }
@@ -174,23 +174,24 @@ private fun GameLevel(
 }
 
 @Composable
-fun StartGameButton(onStartButtonClicked: () -> Unit) {
+fun BigButton(
+    buttonText : String = stringResource(R.string.startGameButtonTitle),
+    onButtonClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = onStartButtonClicked,
+            onClick = onButtonClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = BigMarge, vertical = RegularMarge)
                 .height(100.dp)
         ) {
             Text(
-                text = stringResource(R.string.startGameButtonTitle),
+                text = buttonText,
                 style = MaterialTheme.typography.h3
             )
         }
     }
-
 }

@@ -39,3 +39,7 @@ val Typography = Typography(
         fontSize = 12.sp
     )
 )
+
+val LittleBigFontTextStyle = TextStyle(fontSize = LittleBigFontSize, fontWeight = FontWeight.Black)
+val MediumBigFontTextStyle = TextStyle(fontSize = MediumBigFontSize, fontWeight = FontWeight.Black)
+val BigFontTextStyle = TextStyle(fontSize = BigFontSize, fontWeight = FontWeight.Black)
