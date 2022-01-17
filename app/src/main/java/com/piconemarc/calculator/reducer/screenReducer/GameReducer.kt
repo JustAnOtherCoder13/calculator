@@ -80,20 +80,21 @@ val gameReducer: Reducer<GameState> = { old, action ->
             val goodAnswerChainCount = if (action.gameState.firstNumber.isOperationTrue(
                     action.gameState.operand,
                     action.gameState.secondNumber,
-                    action.gameState.result
+                    action.result
                 )
             ) action.gameState.goodAnswerChain + 1 else 0
             old.copy(
                 goodAnswerChain = goodAnswerChainCount,
                 bonus = when (goodAnswerChainCount) {
-                    3, 4 -> 300
-                    5, 6 -> 600
-                    7, 8, 9 -> 1000
+                    3, 4 -> GoodAnswerBonus.BASIC.value
+                    5, 6 -> GoodAnswerBonus.NOT_SO_BAD.value
+                    7, 8, 9 -> GoodAnswerBonus.GOOD.value
                     else -> {
-                        if (goodAnswerChainCount > 10) 2000
-                        else 1
+                        if (goodAnswerChainCount >= 10) GoodAnswerBonus.VERY_GOOD.value
+                        else GoodAnswerBonus.NONE.value
                     }
-                }
+                },
+                bestGoodAnswerChain = if(goodAnswerChainCount > old.bestGoodAnswerChain)goodAnswerChainCount else old.bestGoodAnswerChain
             )
         }
         is GameAction.UpdateRemainingTime -> old.copy(
@@ -107,20 +108,35 @@ val gameReducer: Reducer<GameState> = { old, action ->
                 score = if (action.gameState.firstNumber.isOperationTrue(
                         action.gameState.operand,
                         action.gameState.secondNumber,
-                        action.gameState.result
+                        action.result
                     )
                 ) {
                     action.gameState.score + (calculateScore(action.gameState) * action.gameState.bonus)
-                } else action.gameState.score,
+                } else old.score,
+                goodAnswerCount = if (action.gameState.firstNumber.isOperationTrue(
+                        action.gameState.operand,
+                        action.gameState.secondNumber,
+                        action.result
+                    ))action.gameState.goodAnswerCount +1 else old.goodAnswerCount
             )
         }
-        is GameAction.TimesUp -> old
-        is GameAction.SubmitResult -> old
+        is GameAction.SubmitResult -> old.copy(
+            result = action.result
+        )
         is GameAction.StartAnswerChrono -> old
         is GameAction.UpdateAnswerChrono -> old.copy(
             answerTime = action.time
         )
     }
+}
+
+enum class GoodAnswerBonus(val value : Long){
+    NONE(1),
+    BASIC(300),
+    NOT_SO_BAD(700),
+    GOOD(1100),
+    VERY_GOOD(1700),
+    PERFECT(2500)
 }
 
 private fun calculateRandomResult(goodAnswer: String): Int {

@@ -20,12 +20,11 @@ sealed class HomeAction : UiAction {
 sealed class GameAction : UiAction {
     data class StartGame(val gameParameters: GameParameters) : GameAction()
     data class UpdateRemainingTime ( val remainingTime : Long) : GameAction()
-    data class SubmitResult(val gameState: GameState,val doOnSuccess:()->Unit) : GameAction()
-    data class UpdateGoodAnswerChainCount(val gameState: GameState) : GameAction()
-    data class UpdateScore(val gameState: GameState) : GameAction()
+    data class SubmitResult(val gameState: GameState, val result: String,val doOnSuccess:()->Unit) : GameAction()
+    data class UpdateGoodAnswerChainCount(val gameState: GameState,val result: String) : GameAction()
+    data class UpdateScore(val gameState: GameState, val result: String) : GameAction()
     data class UpdateOperation(val gameState: GameState) : GameAction()
     data class UpdateResult (val result : String) : GameAction()
     object StartAnswerChrono : GameAction()
     data class UpdateAnswerChrono(val time : Int) : GameAction()
-    object TimesUp : GameAction()
 }

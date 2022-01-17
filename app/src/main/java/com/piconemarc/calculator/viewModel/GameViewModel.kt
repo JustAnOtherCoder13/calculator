@@ -41,7 +41,7 @@ class GameViewModel @Inject constructor(
 
             is GameAction.SubmitResult -> {
                     this.dispatchAction(
-                        GameAction.UpdateGoodAnswerChainCount(action.gameState),
+                        GameAction.UpdateGoodAnswerChainCount(action.gameState, action.result),
                     )
                     action.doOnSuccess()
             }

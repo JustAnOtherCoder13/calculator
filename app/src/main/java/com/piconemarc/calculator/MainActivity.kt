@@ -83,9 +83,9 @@ class MainActivity : ComponentActivity() {
                                             PlayedGameInfo(
                                                 score = gameViewModel.gameState.score,
                                                 answeredQuestions = gameViewModel.gameState.questionCounter,
-                                                goodAnswer = 0,
-                                                bestGoodAnswerChain = 0,
-                                                answerPerTime = ""
+                                                goodAnswer = gameViewModel.gameState.goodAnswerCount,
+                                                bestGoodAnswerChain = gameViewModel.gameState.bestGoodAnswerChain,
+                                                answerPerTime = "1 answer per ${(gameViewModel.gameState.gameParameters.gameLevel.allocatedTime/1000)/gameViewModel.gameState.questionCounter} second"
                                             )
                                         )
                                     )

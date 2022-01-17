@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.piconemarc.calculator.reducer.GameAction
 import com.piconemarc.calculator.reducer.GameState
+import com.piconemarc.calculator.reducer.screenReducer.GoodAnswerBonus
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
 import com.piconemarc.calculator.ui.theme.*
 import com.piconemarc.calculator.utils.GameLevel
@@ -39,6 +40,13 @@ fun GameScreen(
             goodAnswerChain = gameState.goodAnswerChain.toString(),
             score = gameState.score.toString()
         )
+        Text(text = "Bonus : X${gameState.bonus}", style = when(gameState.bonus){
+            GoodAnswerBonus.BASIC.value->MaterialTheme.typography.h3
+            GoodAnswerBonus.NOT_SO_BAD.value -> MaterialTheme.typography.h3
+            GoodAnswerBonus.GOOD.value -> MaterialTheme.typography.h2
+            GoodAnswerBonus.VERY_GOOD.value-> MaterialTheme.typography.h1
+            else -> MaterialTheme.typography.body1
+        })
         Answer(
             firstNumber = gameState.firstNumber.toString(),
             operand = gameState.operand,
@@ -48,12 +56,12 @@ fun GameScreen(
                 onGameEvent(GameAction.UpdateResult(result))
             },
             gameLevel = gameState.gameParameters.gameLevel,
-            onValidateResult = {
-                onGameEvent(GameAction.SubmitResult(gameState, doOnSuccess = {
-                    onGameEvent(GameAction.UpdateScore(gameState))
+            onValidateResult = { result ->
+                onGameEvent(GameAction.SubmitResult(gameState, result = result, doOnSuccess = {
+                    onGameEvent(GameAction.UpdateScore(gameState, result))
                 }))
             },
-            resultList = gameState.noviceAnswerValues
+            resultList = gameState.noviceAnswerValues,
         )
 
     }
@@ -67,7 +75,7 @@ private fun Answer(
     resultValue: String,
     onResultChange: (result: String) -> Unit,
     gameLevel: GameLevel,
-    onValidateResult: () -> Unit,
+    onValidateResult: (result : String) -> Unit,
     resultList: List<Int>
 ) {
     GreenOutlinedColumn(
@@ -86,8 +94,7 @@ private fun Answer(
         when (gameLevel) {
             GameLevel.NOVICE -> {
                 ResultSelector(
-                    onResultChange,
-                    onValidateResult,
+                    onNoviceResultButtonClick = onValidateResult,
                     resultList
                 )
             }
@@ -104,28 +111,19 @@ private fun Answer(
 
 @Composable
 private fun ResultSelector(
-    onResultChange: (result: String) -> Unit,
-    onValidateResult: () -> Unit,
+    onNoviceResultButtonClick: (result: String) -> Unit,
     answerList: List<Int>
 ) {
-    val scope = rememberCoroutineScope()
-
-    Text(text = "Choose your answer :", style = LittleBigFontTextStyle)
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = RegularMarge),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        answerList.forEach {
+        answerList.forEach { integerResult ->
             NoviceAnswerButton(
-                value = it.toString(),
-                onButtonClick = {
-                    scope.launch {
-                        onResultChange(it)
-                        delay(500)
-                        onValidateResult()
-                    }
-                })
-
+                value = integerResult.toString(),
+                onButtonClick = { result -> onNoviceResultButtonClick(result)})
         }
     }
 }
@@ -161,7 +159,7 @@ private fun NoviceAnswerButton(
 private fun ResultTextField(
     resultValue: String,
     onResultChange: (result: String) -> Unit,
-    onValidateResult: () -> Unit
+    onValidateResult: (result : String) -> Unit
 ) {
     TextField(
         textStyle = BigFontTextStyle,
@@ -180,7 +178,7 @@ private fun ResultTextField(
 
     )
     BigButton(
-        onButtonClick = onValidateResult,
+        onButtonClick = { onValidateResult(resultValue) },
         buttonText = "Next"
     )
 }

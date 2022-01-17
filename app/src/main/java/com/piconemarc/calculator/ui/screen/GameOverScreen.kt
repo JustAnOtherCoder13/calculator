@@ -19,5 +19,17 @@ fun GameOverScreen(playedGameInfo: PlayedGameInfo){
             Text(text = "score : ", style = MaterialTheme.typography.h3)
             Text(text = playedGameInfo.score.toString(), style = MaterialTheme.typography.body1)
         }
+        Row() {
+            Text(text = "good Answer : ", style = MaterialTheme.typography.h3)
+            Text(text = playedGameInfo.goodAnswer.toString(), style = MaterialTheme.typography.body1)
+        }
+        Row() {
+            Text(text = "best good answer chain : ", style = MaterialTheme.typography.h3)
+            Text(text = playedGameInfo.bestGoodAnswerChain.toString(), style = MaterialTheme.typography.body1)
+        }
+        Row() {
+            Text(text = "answer per time : ", style = MaterialTheme.typography.h3)
+            Text(text = playedGameInfo.answerPerTime, style = MaterialTheme.typography.body1)
+        }
     }
 }
