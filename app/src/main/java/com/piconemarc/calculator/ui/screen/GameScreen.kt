@@ -1,9 +1,10 @@
 package com.piconemarc.calculator.ui.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -17,11 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.piconemarc.calculator.reducer.GameAction
 import com.piconemarc.calculator.reducer.GameState
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
-import com.piconemarc.calculator.ui.theme.BigFontTextStyle
-import com.piconemarc.calculator.ui.theme.LittleBigFontTextStyle
-import com.piconemarc.calculator.ui.theme.LittleMarge
-import com.piconemarc.calculator.ui.theme.ScoreMarge
+import com.piconemarc.calculator.ui.theme.*
+import com.piconemarc.calculator.utils.GameLevel
 import com.piconemarc.calculator.utils.interfaces.NavDestination
+import kotlin.random.Random
 
 
 @Composable
@@ -45,6 +45,8 @@ fun GameScreen(
             onResultChange = { result ->
                 onGameEvent(GameAction.UpdateResult(result))
             },
+            gameLevel = gameState.gameParameters.gameLevel,
+            goodAnswer = gameState.goodAnswer,
             onValidateResult = {
                 onGameEvent(GameAction.SubmitResult(gameState, doOnSuccess = {
                     onGameEvent(GameAction.UpdateScore(gameState))
@@ -62,7 +64,9 @@ private fun Answer(
     secondNumber: String,
     resultValue: String,
     onResultChange: (result: String) -> Unit,
-    onValidateResult: () -> Unit
+    gameLevel: GameLevel,
+    goodAnswer: String,
+    onValidateResult: () -> Unit,
 
 ) {
     GreenOutlinedColumn(
@@ -78,27 +82,135 @@ private fun Answer(
             Text(text = secondNumber, style = BigFontTextStyle)
             Text(text = " =", style = BigFontTextStyle)
         }
-        TextField(
-            textStyle = BigFontTextStyle,
-            colors = TextFieldDefaults.textFieldColors(
-                cursorColor = MaterialTheme.colors.onPrimary,
-                focusedLabelColor = MaterialTheme.colors.onPrimary,
-            ),
-            modifier = Modifier
-                .width(200.dp),
-            value = resultValue,
-            onValueChange = onResultChange,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            ),
-            label = { Text(text = "Result") }
-
-        )
-        BigButton(
-            onButtonClick = onValidateResult,
-            buttonText = "Next"
-        )
+        when (gameLevel) {
+            GameLevel.NOVICE -> {
+                ResultSelector(
+                    goodAnswer,
+                    onResultChange,
+                    onValidateResult
+                )
+            }
+            else -> {
+                ResultTextField(
+                    resultValue,
+                    onResultChange,
+                    onValidateResult
+                )
+            }
+        }
     }
+}
+
+@Composable
+private fun ResultSelector(
+    goodAnswer: String,
+    onResultChange: (result: String) -> Unit,
+    onValidateResult: () -> Unit
+) {
+    val randomAnswerPosition = Random.nextInt(0,2)
+
+    Text(text = "Choose your answer :", style = LittleBigFontTextStyle)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        for (i in 0..3) {
+            when (i) {
+                randomAnswerPosition -> {
+                    NoviceAnswerButton(
+                        value = goodAnswer,
+                        onButtonClick = {
+                            onResultChange(it)
+                            onValidateResult()
+                        }
+                    )
+                }
+                else -> {
+                    RandomNoviceAnswerButton(
+                        goodAnswer = goodAnswer,
+                        onButtonClick = {
+                            onResultChange(it)
+                            onValidateResult()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RandomNoviceAnswerButton(
+    goodAnswer: String,
+    onButtonClick: (value: String) -> Unit
+) {
+    val randomModifierBound =
+        if (goodAnswer.toInt() > 1) goodAnswer.toInt() else Random.nextInt(3, 10)
+    val randomValueModifier = Random.nextInt(1, randomModifierBound)
+    val value = if (goodAnswer.toInt() - randomValueModifier < 0) {
+        goodAnswer.toInt() + randomValueModifier
+    } else {
+        goodAnswer.toInt() - randomValueModifier
+    }
+    NoviceAnswerButton(
+        value = value.toString(),
+        onButtonClick = onButtonClick
+    )
+}
+
+@Composable
+private fun NoviceAnswerButton(
+    value: String,
+    onButtonClick: (value: String) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clickable {
+                onButtonClick(value)
+            }
+            .size(100.dp)
+            .background(
+                color = MaterialTheme.colors.primary,
+                shape = CircleShape
+            )
+            .border(
+                width = ThinBorder,
+                color = MaterialTheme.colors.primaryVariant,
+                shape = CircleShape
+            ),
+
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = value, style = MaterialTheme.typography.h1)
+    }
+}
+
+@Composable
+private fun ResultTextField(
+    resultValue: String,
+    onResultChange: (result: String) -> Unit,
+    onValidateResult: () -> Unit
+) {
+    TextField(
+        textStyle = BigFontTextStyle,
+        colors = TextFieldDefaults.textFieldColors(
+            cursorColor = MaterialTheme.colors.onPrimary,
+            focusedLabelColor = MaterialTheme.colors.onPrimary,
+        ),
+        modifier = Modifier
+            .width(200.dp),
+        value = resultValue,
+        onValueChange = onResultChange,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number
+        ),
+        label = { Text(text = "Result") }
+
+    )
+    BigButton(
+        onButtonClick = onValidateResult,
+        buttonText = "Next"
+    )
 }
 
 @Composable
@@ -115,8 +227,8 @@ private fun Score(
             )
         }
         Row() {
-            Text(text = "Score : ", style = LittleBigFontTextStyle)
-            Text(text = score, style = LittleBigFontTextStyle)
+            Text(text = "Score : ", style = MediumBigFontTextStyle)
+            Text(text = score, style = MediumBigFontTextStyle)
         }
     }
 }
@@ -126,7 +238,7 @@ private fun Timer(remainingTime: Long) {
     GreenOutlinedColumn {
         Text(text = "Time", style = MaterialTheme.typography.h2)
         Row() {
-            Text(text = "$remainingTime", style = LittleBigFontTextStyle)
+            Text(text = "$remainingTime", style = MediumBigFontTextStyle)
             //Text(text = " : ", style = LittleBigFontTextStyle)
             //Text(text = "00", style = LittleBigFontTextStyle)
         }

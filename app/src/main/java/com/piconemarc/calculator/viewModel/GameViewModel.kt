@@ -27,9 +27,10 @@ class GameViewModel @Inject constructor(
     override fun dispatchAction(action: GameAction) {
         updateState(GlobalAction.UpdateGameState(action))
         when (action) {
+            //todo change chrono here
             is GameAction.StartAnswerChrono -> {
                 viewModelScope.launch {
-                    for (t in 0..100){
+                    for (t in 0..100) {
                         this@GameViewModel.dispatchAction(
                             GameAction.UpdateAnswerChrono(t)
                         )
@@ -39,17 +40,13 @@ class GameViewModel @Inject constructor(
             }
 
             is GameAction.SubmitResult -> {
-                try {
                     this.dispatchAction(
                         GameAction.UpdateGoodAnswerChainCount(action.gameState),
                     )
                     action.doOnSuccess()
-                }catch (e:Exception){
-                    Log.e("TAG", "dispatchAction: ",e )
-                }
             }
 
-            is GameAction.UpdateScore->{
+            is GameAction.UpdateScore -> {
                 this.dispatchAction(
                     GameAction.UpdateOperation(
                         action.gameState

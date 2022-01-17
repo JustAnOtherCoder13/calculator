@@ -17,4 +17,5 @@ val TableButtonWidth = 30.dp
 val TableButtonHeight = 40.dp
 
 val BigFontSize = 50.sp
-val LittleBigFontSize = 40.sp
+val MediumBigFontSize = 40.sp
+val LittleBigFontSize = 30.sp

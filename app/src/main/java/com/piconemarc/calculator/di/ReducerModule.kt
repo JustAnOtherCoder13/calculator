@@ -6,7 +6,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import dagger.hilt.internal.processedrootsentinel.ProcessedRootSentinel
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)

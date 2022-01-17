@@ -8,22 +8,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.piconemarc.calculator.R
 import com.piconemarc.calculator.model.ui.GameParameters
 import com.piconemarc.calculator.navigation.NavDestinations
 import com.piconemarc.calculator.reducer.HomeAction
 import com.piconemarc.calculator.reducer.HomeState
-import com.piconemarc.calculator.ui.common.GameLevelRadioButton
 import com.piconemarc.calculator.ui.common.BaseToggleButton
+import com.piconemarc.calculator.ui.common.GameLevelRadioButton
 import com.piconemarc.calculator.ui.common.GreenOutlinedColumn
 import com.piconemarc.calculator.ui.theme.BigMarge
 import com.piconemarc.calculator.ui.theme.RegularMarge
 import com.piconemarc.calculator.utils.GameLevel
 import com.piconemarc.calculator.utils.interfaces.NavDestination
 import com.piconemarc.calculator.utils.operandList
-import com.piconemarc.calculator.viewModel.HomeViewModel
 
 @Composable
 fun HomeScreen(

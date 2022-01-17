@@ -1,5 +1,6 @@
 package com.piconemarc.calculator.reducer.screenReducer
 
+import android.util.Log
 import com.piconemarc.calculator.reducer.GameAction
 import com.piconemarc.calculator.reducer.GameState
 import com.piconemarc.calculator.utils.GameLevel
@@ -7,28 +8,52 @@ import com.piconemarc.calculator.utils.interfaces.Reducer
 import com.piconemarc.calculator.viewModel.isOperationTrue
 import kotlin.random.Random
 
+//todo review to reduce code
 val gameReducer: Reducer<GameState> = { old, action ->
     action as GameAction
     when (action) {
-        is GameAction.StartGame -> old.copy(
-            firstNumber = action.gameParameters.tableList.random(),
-            operand = action.gameParameters.operandList.random(),
-            secondNumber = Random.nextInt(1, 10),
-            questionCounter = 0,
-            result = "",
-            score = 0,
-            bonus = 1,
-            goodAnswerChain = 0,
-            gameParameters = action.gameParameters
-        )
+        is GameAction.StartGame -> {
+            val firstNumber = action.gameParameters.tableList.random()
+            val operand = action.gameParameters.operandList.random()
+            val secondNumber = Random.nextInt(1, 10)
+            old.copy(
+                firstNumber = firstNumber,
+                operand = operand,
+                secondNumber = secondNumber,
+                questionCounter = 0,
+                result = "",
+                score = 0,
+                bonus = 1,
+                goodAnswerChain = 0,
+                gameParameters = action.gameParameters,
+                goodAnswer = when (operand) {
+                    "+" -> (firstNumber + secondNumber).toString()
+                    "-" -> (firstNumber - secondNumber).toString()
+                    "*" -> (firstNumber * secondNumber).toString()
+                    else -> ""
+                }
+            )
+        }
 
-        is GameAction.UpdateOperation -> old.copy(
-            firstNumber = action.gameState.gameParameters.tableList.random(),
-            operand = action.gameState.gameParameters.operandList.random(),
-            secondNumber = Random.nextInt(1, 10),
-            questionCounter = action.gameState.questionCounter + 1,
-            result = ""
-        )
+        is GameAction.UpdateOperation -> {
+            val firstNumber = action.gameState.gameParameters.tableList.random()
+            val operand = action.gameState.gameParameters.operandList.random()
+            val secondNumber = Random.nextInt(1, 10)
+            Log.i("TAG", "reduce: $operand")
+            old.copy(
+                firstNumber = firstNumber ,
+                operand = operand ,
+                secondNumber = secondNumber ,
+                questionCounter = action.gameState.questionCounter + 1,
+                result = "",
+                goodAnswer = when(operand){
+                    "+" -> (firstNumber + secondNumber).toString()
+                    "-" -> (firstNumber - secondNumber).toString()
+                    "*" -> (firstNumber * secondNumber).toString()
+                    else-> ""
+                }
+            )
+        }
 
         is GameAction.UpdateGoodAnswerChainCount -> {
             val goodAnswerChainCount = if (action.gameState.firstNumber.isOperationTrue(

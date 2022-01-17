@@ -41,4 +41,5 @@ val Typography = Typography(
 )
 
 val LittleBigFontTextStyle = TextStyle(fontSize = LittleBigFontSize, fontWeight = FontWeight.Black)
+val MediumBigFontTextStyle = TextStyle(fontSize = MediumBigFontSize, fontWeight = FontWeight.Black)
 val BigFontTextStyle = TextStyle(fontSize = BigFontSize, fontWeight = FontWeight.Black)
